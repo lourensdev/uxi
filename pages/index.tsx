@@ -1,5 +1,6 @@
 import type { NextPage } from 'next';
 import Head from 'next/head';
+import Image from 'next/image';
 import styled from 'styled-components';
 import anime from 'animejs';
 import { useEffect, useRef } from 'react';
@@ -10,7 +11,7 @@ const Home: NextPage = () => {
   useEffect(() => {
     anime({
       targets: headlineRef.current,
-      translateY: 50,
+      rotate: 360,
       direction: 'alternate',
       loop: true,
       duration: 500,
@@ -21,12 +22,37 @@ const Home: NextPage = () => {
   return (
     <>
       <Head>
-        <title>UXI - Beautiful on the web</title>
-        <meta name="description" content="Beautiful on the web" />
+        <title>UXi - Beautiful UI on the web</title>
+        <meta name="description" content="Beautiful UI on the web" />
         <link rel="icon" href="/favicon.ico" />
+        <link
+          rel="apple-touch-icon"
+          sizes="180x180"
+          href="/apple-touch-icon.png"
+        />
+        <link
+          rel="icon"
+          type="image/png"
+          sizes="32x32"
+          href="/favicon-32x32.png"
+        />
+        <link
+          rel="icon"
+          type="image/png"
+          sizes="16x16"
+          href="/favicon-16x16.png"
+        />
+        <link rel="manifest" href="/site.webmanifest" />
       </Head>
       <Main>
-        <Headline ref={headlineRef}>Hello Next</Headline>
+        <Headline ref={headlineRef}>
+          <Image
+            src="/assets/logo-round.png"
+            width="200"
+            height="200"
+            alt="UXi Logo"
+          />
+        </Headline>
       </Main>
     </>
   );
