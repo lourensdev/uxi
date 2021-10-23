@@ -3,23 +3,47 @@ import Head from 'next/head';
 import Image from 'next/image';
 import styled from 'styled-components';
 import anime from 'animejs';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { Coordinates, getCoordinates } from '../utilities/common';
 
 const Home: NextPage = () => {
+  const [intro, setIntro] = useState<boolean>(true);
+  const [interactiveView, setInteractiveView] = useState<boolean>(false);
+
   const LogoRef = useRef<HTMLDivElement>(null);
+  const LogoIntroRef = useRef<HTMLDivElement>(null);
   const CircleEnterRef = useRef<HTMLDivElement>(null);
   const CircleExplodeOneRef = useRef<HTMLDivElement>(null);
-  const CircleExplodeTwoRef = useRef<HTMLDivElement>(null);
-  const CircleExplodeThreeRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
+  const introAnimation = () => {
     // Create a timeline with default parameters
     let animationTimeline = anime.timeline({
       easing: 'easeOutExpo',
       duration: 1500,
+      complete: () => {
+        const pos: Coordinates = getCoordinates(LogoIntroRef);
+        setIntro(false);
+        anime.set(LogoRef.current, {
+          translateX: pos.x - 15,
+          translateY: pos.y - 15,
+          scale: 1,
+        });
+        anime({
+          targets: LogoRef.current,
+          keyframes: [{ translateX: 0, translateY: 0, scale: 0.3 }],
+          easing: 'easeOutExpo',
+          duration: 1000,
+          complete: () => {
+            setInteractiveView(true);
+            anime.set(LogoRef.current, {
+              scale: 1,
+            });
+          },
+        });
+      },
     });
 
-    anime.set(LogoRef.current, {
+    anime.set(LogoIntroRef.current, {
       opacity: () => 0,
     });
 
@@ -33,8 +57,6 @@ const Home: NextPage = () => {
 
     setTranslate(CircleEnterRef, 1);
     setTranslate(CircleExplodeOneRef);
-    setTranslate(CircleExplodeTwoRef);
-    setTranslate(CircleExplodeThreeRef);
 
     // Add children
     animationTimeline
@@ -45,7 +67,7 @@ const Home: NextPage = () => {
       })
       .add(
         {
-          targets: LogoRef.current,
+          targets: LogoIntroRef.current,
           keyframes: [{ opacity: 0 }, { opacity: 1 }],
           duration: 1000,
         },
@@ -53,14 +75,14 @@ const Home: NextPage = () => {
       )
       .add(
         {
-          targets: LogoRef.current,
+          targets: LogoIntroRef.current,
           keyframes: [{ scale: 1 }, { scale: 1.2 }],
           duration: 800,
         },
         '-=400',
       )
       .add({
-        targets: LogoRef.current,
+        targets: LogoIntroRef.current,
         keyframes: [{ scale: 1.2 }, { scale: 1 }],
         easing: 'easeInCirc',
         duration: 300,
@@ -70,35 +92,17 @@ const Home: NextPage = () => {
           targets: CircleExplodeOneRef.current,
           keyframes: [
             { opacity: 0.8, scale: 1 },
-            { opacity: 0, scale: 4 },
-          ],
-          duration: 2000,
-        },
-        '-=1000',
-      )
-      .add(
-        {
-          targets: CircleExplodeTwoRef.current,
-          keyframes: [
-            { opacity: 0.6, scale: 1 },
             { opacity: 0, scale: 3 },
           ],
           duration: 2000,
         },
-        '-=1800',
-      )
-      .add(
-        {
-          targets: CircleExplodeThreeRef.current,
-          keyframes: [
-            { opacity: 0.4, scale: 1 },
-            { opacity: 0, scale: 2 },
-          ],
-          duration: 2000,
-        },
-        '-=2600',
+        '-=1000',
       );
-  });
+  };
+
+  useEffect(() => {
+    if (intro) introAnimation();
+  }, []);
 
   return (
     <>
@@ -126,42 +130,54 @@ const Home: NextPage = () => {
         />
         <link rel="manifest" href="/site.webmanifest" />
       </Head>
-      <Main>
-        <div>
+      {intro && (
+        <Page>
+          <div>
+            <Logo ref={LogoIntroRef} intro={intro}>
+              <Image
+                src="/assets/logo-round.png"
+                width="200"
+                height="200"
+                alt="UXi Logo"
+              />
+            </Logo>
+            <CircleEnter ref={CircleEnterRef} />
+            <CircleExplodeOne ref={CircleExplodeOneRef} />
+          </div>
+        </Page>
+      )}
+      {!intro && (
+        <NavBar>
           <Logo ref={LogoRef}>
             <Image
               src="/assets/logo-round.png"
-              width="200"
-              height="200"
+              width={interactiveView ? '60' : '200'}
+              height={interactiveView ? '60' : '200'}
               alt="UXi Logo"
             />
           </Logo>
-          <CircleEnter ref={CircleEnterRef} />
-          <CircleExplodeOne ref={CircleExplodeOneRef} />
-          <CircleExplodeTwo ref={CircleExplodeTwoRef} />
-          <CircleExplodeThree ref={CircleExplodeThreeRef} />
-        </div>
-      </Main>
+        </NavBar>
+      )}
     </>
   );
 };
 
-const Main = styled.div`
+const Page = styled.div`
   --logoSize: 200px;
   position: relative;
   display: flex;
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
   justify-content: center;
   align-items: center;
   overflow: hidden;
 `;
 
-const Logo = styled.div`
+const Logo = styled.div<{ intro?: boolean }>`
   position: relative;
   width: var(--logoSize);
   height: var(--logoSize);
-  opacity: 0;
+  ${props => (props.intro ? 'opacity: 0;' : 'transform-origin: top left;')}
   z-index: 2;
 `;
 
@@ -185,10 +201,8 @@ const CircleExplodeOne = styled.div`
   ${CircleInitialPosition}
 `;
 
-const CircleExplodeTwo = styled.div`
-  ${CircleInitialPosition}
+const NavBar = styled.header`
+  padding: 15px;
 `;
-
-const CircleExplodeThree = styled.div``;
 
 export default Home;

@@ -1,6 +1,10 @@
 import { createGlobalStyle } from 'styled-components';
 
 export const GlobalStyle = createGlobalStyle`
+    :root {
+        --mainBackground: #130429;
+    }
+
     /*** The new CSS Reset - version 1.2.0 (last updated 23.7.2021) ***/
 
     /* Preferred box-sizing value */
@@ -39,9 +43,5 @@ export const GlobalStyle = createGlobalStyle`
 
     img {
         display: inline-block;
-    }
-
-    :root {
-        --mainBackground: #130429;
     }
 `;
