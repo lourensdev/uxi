@@ -33,5 +33,15 @@ export const GlobalStyle = createGlobalStyle`
     html, body, #__next {
         width: 100%;
         height: 100%;
+        padding: 0;
+        margin: 0;
+    }
+
+    img {
+        display: inline-block;
+    }
+
+    :root {
+        --mainBackground: #130429;
     }
 `;
